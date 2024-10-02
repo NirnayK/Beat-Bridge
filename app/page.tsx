@@ -1,101 +1,131 @@
-import Image from "next/image";
+import Link from 'next/link'
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Settings, Download, List, RefreshCw, Github, Wrench } from 'lucide-react'
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      <main className="flex-1">
+        <HeroSection />
+        <FeaturesSection />
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
-  );
+  )
+}
+
+function Header() {
+  return (
+    <header className="container z-40 bg-background">
+      <div className="flex h-20 items-center justify-between py-6 px-4 md:px-10 lg:px-20">
+        <Link href="/" className="flex items-center justify-center space-x-2">
+          <span className="inline-block font-bold text-2xl">Music Master</span>
+        </Link>
+        <nav className="flex items-center">
+          <Link href="https://github.com" target="_blank" rel="noopener noreferrer">
+            <Button variant="ghost" size="sm">
+              <Github className="h-5 w-5" />
+              <span className="sr-only">GitHub</span>
+            </Button>
+          </Link>
+        </nav>
+      </div>
+    </header>
+  )
+}
+
+function HeroSection() {
+  return (
+    <section className="flex flex-col items-center justify-center space-y-6 py-12 md:py-20 lg:py-32 text-center bg-gray-50">
+      <div className="container max-w-4xl mx-auto">
+        <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight">
+          Streamline Your Offline Music Experience with Music Master
+        </h1>
+        <p className="mt-4 max-w-2xl mx-auto leading-normal text-muted-foreground sm:text-xl sm:leading-8">
+          Effortlessly manage and download your Spotify playlists. Configure your profile, sync your music, and enjoy your favorite tunes offline.
+        </p>
+        <div className="space-x-4 mt-8">
+          <Link href="/profile-config" passHref>
+            <Button size="lg">Get Started</Button>
+          </Link>
+          <Link href="#features" passHref>
+            <Button variant="outline" size="lg">
+              Learn More
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function FeaturesSection() {
+  const features = [
+    {
+      icon: <Settings className="h-6 w-6" />,
+      title: "Profile Configuration",
+      description: "Customize your Spotify profile settings for optimal syncing",
+      href: "/profile-config",
+    },
+    {
+      icon: <Download className="h-6 w-6" />,
+      title: "Profile Download",
+      description: "Download all playlists from your Spotify profile at once",
+      href: "/profile-download",
+    },
+    {
+      icon: <List className="h-6 w-6" />,
+      title: "Playlist Download",
+      description: "Select and download specific Spotify playlists",
+      href: "/playlist-download",
+    },
+    {
+      icon: <RefreshCw className="h-6 w-6" />,
+      title: "Manual Reconciliation",
+      description: "Resolve any conflicts or missing tracks manually",
+      href: "/manual-reconcile",
+    },
+    {
+      icon: <Wrench className="h-6 w-6" />,
+      title: "Encode It",
+      description: "Encode your song with photo and metadata",
+      href: "/encode-it",
+    }
+  ]
+
+  return (
+    <section id="features" className="space-y-6 py-12 md:py-16 lg:py-24">
+      <div className="mx-auto flex max-w-4xl flex-col items-center space-y-4 text-center">
+        <h2 className="font-heading text-3xl leading-[1.1] sm:text-4xl md:text-5xl">Features</h2>
+        <p className="max-w-2xl leading-normal text-muted-foreground sm:text-lg sm:leading-7">
+          Music Master offers a range of powerful features to enhance your Spotify experience.
+        </p>
+      </div>
+      <div className="mx-auto grid gap-6 sm:grid-cols-2 lg:grid-cols-2 max-w-4xl">
+        {features.map((feature, index) => (
+          <FeatureCard key={index} {...feature} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function FeatureCard({ icon, title, description, href }: { icon: React.ReactNode; title: string; description: string; href: string }) {
+  return (
+    <Card className="flex flex-col items-center justify-center text-center p-6">
+      <CardHeader>
+        <CardTitle className="flex items-center justify-center">
+          {icon}
+          <span className="ml-2">{title}</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <CardDescription>{description}</CardDescription>
+        <Link href={href} passHref>
+          <Button className="mt-4 w-full" variant="default">Go to {title}</Button>
+        </Link>
+      </CardContent>
+    </Card>
+  )
 }

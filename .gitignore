@@ -34,3 +34,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+spotify-next.code-workspace
+.env.development
+.env.production
