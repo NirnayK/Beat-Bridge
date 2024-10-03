@@ -2,40 +2,15 @@ import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Settings, List, RefreshCw, Github, Wrench } from 'lucide-react'
-import { ModeToggle } from '@/components/theme-button'
 
-export default function Home() {
+export default function IndexPage() {
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
       <main className="flex-1">
         <HeroSection />
         <FeaturesSection />
       </main>
     </div>
-  )
-}
-
-function Header() {
-  return (
-    <header className="w-full z-40 bg-background">
-      <div className="flex h-20 items-center justify-between py-6 px-4 md:px-10 lg:px-20">
-        <Link href="/" className="flex items-center justify-center space-x-2">
-          <span className="inline-block font-bold text-2xl">Music Master</span>
-        </Link>
-        <nav className="flex items-center">
-          <div className='space-x-4'>
-            <Link href="https://github.com" target="_blank" rel="noopener noreferrer">
-              <Button variant="ghost" size="sm">
-                <Github className="h-5 w-5" />
-                <span className="sr-only">GitHub</span>
-              </Button>
-            </Link>
-            <ModeToggle />
-          </div>
-        </nav>
-      </div>
-    </header>
   )
 }
 
@@ -50,7 +25,7 @@ function HeroSection() {
           Effortlessly manage and download your Spotify and Youtube playlists. Configure your profile, sync your music, and enjoy your favorite tunes offline.
         </p>
         <div className="space-x-4 mt-8">
-          <Link href="/profile-config" passHref>
+          <Link href="/profile" passHref>
             <Button size="lg">Get Started</Button>
           </Link>
           <Link href="#features" passHref>
@@ -70,7 +45,7 @@ function FeaturesSection() {
       icon: <Settings className="h-6 w-6" />,
       title: "Profile Configuration",
       description: "Customize your profile settings for optimal syncing",
-      href: "/profile-config",
+      href: "/profile",
     },
     {
       icon: <List className="h-6 w-6" />,
