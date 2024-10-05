@@ -16,7 +16,7 @@ export default function IndexPage() {
 
 function HeroSection() {
   return (
-    <section className="flex flex-col items-center justify-center space-y-6 py-12 md:py-20 lg:py-32 text-center bg-secondary/40 dark:bg-secondary/10">
+    <section className="flex flex-col items-center justify-center space-y-6 py-12 md:py-20 lg:py-32 text-center bg-secondary/40 dark:bg-secondary/20">
       <div className="container max-w-4xl mx-auto">
         <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight">
           Streamline Your Offline Music Experience with Music Master
@@ -51,7 +51,7 @@ function FeaturesSection() {
       icon: <List className="h-6 w-6" />,
       title: "Playlist Download",
       description: "Select and download specific playlists",
-      href: "/playlist-download",
+      href: "/playlist-download/spotify",
     },
     {
       icon: <RefreshCw className="h-6 w-6" />,

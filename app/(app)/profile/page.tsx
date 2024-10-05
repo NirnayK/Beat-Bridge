@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import { ProfileForm } from "./profile-form";
+import { ProfileForm } from "./forms/profile-form";
 
 
 export default function SettingsProfilePage() {
@@ -8,11 +8,11 @@ export default function SettingsProfilePage() {
       <div>
         <h3 className="text-lg font-medium">Profile</h3>
         <p className="text-sm text-muted-foreground">
-          This is how others will see you on the site.
+          Update your profile settings. Add your own avatar or change your password.
         </p>
       </div>
       <Separator />
-      <ProfileForm />
+      <ProfileForm type="sign-up" />
     </div>
   )
 }
