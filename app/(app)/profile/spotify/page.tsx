@@ -1,7 +1,6 @@
 import { Separator } from "@/components/ui/separator";
 import { SpotifyForm } from "../forms/spotify-form";
 
-
 export default function SpotifyPage() {
   return (
     <div className="space-y-6">

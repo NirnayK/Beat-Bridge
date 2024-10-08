@@ -2,19 +2,15 @@ import BaseLayout from "@/components/base-layout";
 
 const sidebarNavItems = [
   {
-    title: "Spotify",
-    href: "/playlist-download/spotify",
+    title: "Playlists",
+    href: "/playlist-download",
   },
   {
-    title: "Youtube",
-    href: "/playlist-download/youtube",
-  },
-  {
-    title: "All Songs",
+    title: "Songs",
     href: "/playlist-download/all-songs",
   },
   {
-    title: "Downloaded",
+    title: "Downloaded Songs",
     href: "/playlist-download/downloaded",
   },
 ];

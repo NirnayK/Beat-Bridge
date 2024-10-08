@@ -1,15 +1,22 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from "@/components/ui/form";
 import { FormProvider, useForm } from "react-hook-form";
-import { z } from "zod";
-import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
-import { toast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/password-input"; // Assuming PasswordInput is already created
+import { toast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 // Zod validation schema for sign-up or sign-in
 const profileFormSchema = z.object({

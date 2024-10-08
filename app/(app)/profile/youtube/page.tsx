@@ -1,7 +1,6 @@
 import { Separator } from "@/components/ui/separator";
 import { YoutubeForm } from "../forms/youtube-form";
 
-
 export default function YoutubePage() {
   return (
     <div className="space-y-6">

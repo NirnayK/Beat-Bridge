@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider"
-import { ModeToggle } from "@/components/theme-button";
-import { Button } from "@/components/ui/button";
-import { Link, Github } from "lucide-react";
 
+import { Github, Link } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import type { Metadata } from "next";
+import { ThemeProvider } from "@/components/theme-provider"
+import localFont from "next/font/local";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",

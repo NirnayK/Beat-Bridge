@@ -1,7 +1,7 @@
-import { Github } from "lucide-react";
-import { ModeToggle } from "./theme-button";
 import { Button } from "./ui/button";
+import { Github } from "lucide-react";
 import Link from "next/link";
+import { ModeToggle } from "./theme-button";
 
 export function SiteHeader() {
   return (

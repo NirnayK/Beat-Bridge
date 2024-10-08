@@ -1,7 +1,14 @@
-import Link from 'next/link'
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Settings, List, RefreshCw, Github, Wrench } from 'lucide-react'
+import {
+  Github,
+  List,
+  RefreshCw,
+  Settings,
+  Wrench
+} from 'lucide-react'
+
+import { Button } from "@/components/ui/button"
+import Link from 'next/link'
 
 export default function IndexPage() {
   return (
@@ -51,7 +58,7 @@ function FeaturesSection() {
       icon: <List className="h-6 w-6" />,
       title: "Playlist Download",
       description: "Select and download specific playlists",
-      href: "/playlist-download/spotify",
+      href: "/playlist-download",
     },
     {
       icon: <RefreshCw className="h-6 w-6" />,

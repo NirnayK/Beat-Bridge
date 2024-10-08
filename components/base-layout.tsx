@@ -1,5 +1,5 @@
-import { SidebarNav } from "@/components/sidebar-nav";
 import { Separator } from "@/components/ui/separator";
+import { SidebarNav } from "@/components/sidebar-nav";
 
 interface LayoutProps {
   children: React.ReactNode;
