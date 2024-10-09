@@ -1,6 +1,6 @@
 import { Playlist } from "@/types/props";
 import PlaylistDownloadPage from "./components/playlists";
-import TabsLayout from "./components/tab-layout";
+import TabsLayout from "@/components/tab-layout";
 import pic from "/Users/nak/Downloads/01.webp";
 
 const playlists: Playlist[] = [
@@ -14,22 +14,22 @@ const playlists: Playlist[] = [
 
 const TabItems = [
   {
-    value: "all", // unique value for 'All'
+    value: "all",
     label: "All",
     content: <PlaylistDownloadPage playlists={playlists} />,
   },
   {
-    value: "spotify", // unique value for 'Spotify'
+    value: "spotify",
     label: "Spotify",
     content: <PlaylistDownloadPage playlists={playlists} />,
   },
   {
-    value: "youtube", // unique value for 'Youtube'
+    value: "youtube",
     label: "Youtube",
     content: <PlaylistDownloadPage playlists={playlists} />,
   },
 ];
 
 export default function PlaylistPage() {
-  return <TabsLayout tabs={TabItems} />;
+  return <TabsLayout tabs={TabItems} defaultTab="spotify" />;
 }

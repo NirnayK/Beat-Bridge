@@ -36,12 +36,16 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
 }
 
+function capitalize(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
   )
-  const [searchColumn, setSearchColumn] = useState<string>("none");
+  const [searchColumn, setSearchColumn] = useState<string>("");
 
   const table = useReactTable({
     data,
@@ -61,6 +65,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
 
   return (
     <div>
+      {/* Search and Column Visibility */}
       <div className="flex items-center justify-between">
         {/* Search */}
         <div className="flex gap-2">
@@ -71,14 +76,12 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
             <SelectContent className="capitalize">
               <SelectItem value="none">None</SelectItem>
               {table.getAllColumns().map((column) => (
-                <SelectGroup key={column.id}>
-                  <SelectItem
-                    value={column.id}
-                    onClick={() => setSearchColumn(column.id)}
-                  >
-                    {column.id}
-                  </SelectItem>
-                </SelectGroup>
+                <SelectItem
+                  value={column.id}
+                  onClick={() => setSearchColumn(column.id)}
+                >
+                  {capitalize(column.id)}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -241,5 +244,6 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
         </div>
       </div>
     </div>
+
   );
 }
