@@ -12,7 +12,7 @@ export function SiteHeader() {
         </Link>
         <nav className="flex items-center">
           <div className='space-x-4'>
-            <Link href="https://github.com" target="_blank">
+            <Link href="https://github.com/NirnayK/MusicHead" target="_blank">
               <Button variant="ghost" size="sm">
                 <Github className="h-5 w-5" />
                 <span className="sr-only">GitHub</span>

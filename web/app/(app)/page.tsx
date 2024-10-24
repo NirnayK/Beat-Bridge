@@ -1,9 +1,15 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card"
 import {
   Github,
   List,
+  Music,
   RefreshCw,
-  Settings,
   Wrench
 } from 'lucide-react'
 
@@ -49,10 +55,10 @@ function HeroSection() {
 function FeaturesSection() {
   const features = [
     {
-      icon: <Settings className="h-6 w-6" />,
-      title: "Profile Configuration",
-      description: "Customize your profile settings for optimal syncing",
-      href: "/profile",
+      icon: <Music className="h-6 w-6" />,
+      title: "Profile Sync",
+      description: "Sync your Spotify and Youtube playlists",
+      href: "/sync",
     },
     {
       icon: <List className="h-6 w-6" />,

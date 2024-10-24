@@ -8,10 +8,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { FormProvider, useForm } from "react-hook-form";
-import { Image as ImageIcon, Music, Upload, XCircle } from "lucide-react";
+import { Image as ImageIcon, Music, Upload, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { z } from "zod";
@@ -39,10 +41,30 @@ export default function MultiForm() {
   const [isEncoding, setIsEncoding] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [totalSize, setTotalSize] = useState(0);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const form = useForm<MultiFormValues>({
     resolver: zodResolver(multiFormSchema),
   });
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImagePreview(null);  // Reset preview first to force re-rendering
+      setTimeout(() => {
+        setImagePreview(URL.createObjectURL(file)); // Update preview
+        form.setValue("image", file); // Update form value
+      }, 0);
+
+      // Clear the file input value to allow re-selection of the same image
+      e.target.value = "";
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImagePreview(null);
+    form.setValue("image", null); // Clear the form image value
+  };
 
   // Function to handle file selection and size validation
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,7 +118,7 @@ export default function MultiForm() {
         {/* File Upload Input */}
         <div className="space-y-4">
           <div className="flex items-center justify-center w-full">
-            <label
+            <Label
               htmlFor="file-upload"
               className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-600 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600"
             >
@@ -106,7 +128,7 @@ export default function MultiForm() {
                   <span className="font-semibold">Click to upload</span> or drag and drop
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  MP3, WAV, or FLAC (Max 100MB, 5 files)
+                  MP3, AAC, WAV, or FLAC (Max 100MB, 5 files)
                 </p>
               </div>
               <Input
@@ -114,10 +136,10 @@ export default function MultiForm() {
                 type="file"
                 className="hidden"
                 multiple
-                accept=".mp3,.wav,.flac"
+                accept=".mp3,.aac,.wav,.flac,"
                 onChange={handleFileChange}
               />
-            </label>
+            </Label>
           </div>
 
           {/* Display the list of uploaded files in a grid */}
@@ -142,8 +164,8 @@ export default function MultiForm() {
                     <p className="text-xs text-muted-foreground">
                       {(file.size / (1024 * 1024)).toFixed(2)} MB
                     </p>
-                    <XCircle
-                      className="absolute top-2 right-2 w-5 h-5 cursor-pointer text-red-500"
+                    <X
+                      className="absolute top-2 right-2 w-5 h-5 cursor-pointer text-white bg-gray-800 rounded-full p-1 hover:bg-gray-700"
                       onClick={() => removeFile(index)}
                     />
                   </div>
@@ -153,17 +175,17 @@ export default function MultiForm() {
           </div>
         </div>
 
-        {/* Shared Fields */}
+        {/* Image Upload Section */}
         <div className="grid gap-6 md:grid-cols-2">
           <FormField
             control={form.control}
             name="image"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <FormLabel>Cover Image</FormLabel>
                 <FormControl>
                   <div className="flex items-center justify-center w-full">
-                    <label
+                    <Label
                       htmlFor="dropzone-image"
                       className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
                     >
@@ -173,7 +195,7 @@ export default function MultiForm() {
                           Click to upload or drag and drop
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          PNG, JPG or GIF (Max 2MB)
+                          PNG or JPG
                         </p>
                       </div>
                       <Input
@@ -181,16 +203,37 @@ export default function MultiForm() {
                         type="file"
                         className="hidden"
                         accept="image/*"
-                        onChange={(e) => field.onChange(e.target.files?.[0])}
+                        onChange={handleImageChange}
                       />
-                    </label>
+                    </Label>
                   </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
+          {/* Display Image Preview */}
+          {imagePreview && (
+            <div className="space-y-2">
+              <Label>Cover Image Preview</Label>
+              <div className="relative flex items-center justify-center h-64 w-full border-2 border-dashed rounded-lg bg-gray-50 dark:bg-gray-700">
+                <Image
+                  src={imagePreview}
+                  alt="Cover Preview"
+                  className="object-cover rounded-lg"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  layout="fill"
+                />
+                <X
+                  className="absolute top-[4px] right-[4px] w-6 h-6 cursor-pointer text-white bg-gray-800 rounded-full p-1 hover:bg-gray-700"
+                  onClick={handleRemoveImage}
+                />
+              </div>
+            </div>
+          )}
         </div>
+
 
         {/* Artist, Album, Year Inputs */}
         <div className="grid gap-4 md:grid-cols-3">

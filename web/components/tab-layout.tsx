@@ -10,14 +10,15 @@ import { TabItem } from "@/types/props";
 interface TabsLayoutProps {
   tabs: TabItem[];
   defaultTab: string;
+  tabsListCss?: string;
 }
 
-export default function TabsLayout({ tabs, defaultTab }: TabsLayoutProps) {
+export default function TabsLayout({ tabs, defaultTab, tabsListCss }: TabsLayoutProps) {
   return (
     <div className="h-full px-4 lg:px-8">
       <Tabs defaultValue={defaultTab} className="h-full space-y-6">
         <div className="space-between flex items-center">
-          <TabsList>
+          <TabsList className={tabsListCss ?? ""}>
             {tabs.map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value} className="relative">
                 {tab.label}

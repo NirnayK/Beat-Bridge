@@ -16,20 +16,24 @@ const TabItems = [
   {
     value: "all",
     label: "All",
-    content: <PlaylistDownloadPage playlists={playlists} />,
+    content: (<div className="px-3"><PlaylistDownloadPage playlists={playlists} /></div>)
   },
   {
     value: "spotify",
     label: "Spotify",
-    content: <PlaylistDownloadPage playlists={playlists} />,
+    content: (<div className="px-3"><PlaylistDownloadPage playlists={playlists} /></div>)
   },
   {
     value: "youtube",
     label: "Youtube",
-    content: <PlaylistDownloadPage playlists={playlists} />,
+    content: (<div className="px-3"><PlaylistDownloadPage playlists={playlists} /></div>)
   },
 ];
 
 export default function PlaylistPage() {
-  return <TabsLayout tabs={TabItems} defaultTab="spotify" />;
+  return (
+    <div className="px-3">
+      <TabsLayout tabs={TabItems} defaultTab="spotify" />;
+    </div>
+  );
 }
