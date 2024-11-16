@@ -33,6 +33,7 @@ const multiFormSchema = z.object({
   artist: z.string().optional(),
   album: z.string().optional(),
   yearOfRelease: z.string().optional(),
+  albumArtist: z.string().optional(),
 });
 
 type MultiFormValues = z.infer<typeof multiFormSchema>;
@@ -236,7 +237,7 @@ export default function MultiForm() {
 
 
         {/* Artist, Album, Year Inputs */}
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
             name="artist"
@@ -245,6 +246,19 @@ export default function MultiForm() {
                 <FormLabel>Artist</FormLabel>
                 <FormControl>
                   <Input placeholder="Enter the artist name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="yearOfRelease"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Year of Release</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="YYYY" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -265,17 +279,18 @@ export default function MultiForm() {
           />
           <FormField
             control={form.control}
-            name="yearOfRelease"
+            name="albumArtist"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Year of Release</FormLabel>
+                <FormLabel>Album Artist</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="YYYY" {...field} />
+                  <Input placeholder="Enter the album artist name" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
         </div>
 
         {/* Submit Button */}

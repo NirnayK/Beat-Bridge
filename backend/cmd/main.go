@@ -1,14 +1,22 @@
 package main
 
 import (
-	"log"
+    "os"
+    "time"
 
-	"github.com/NirnayK/beat-bridge/backend/config"
-	"github.com/NirnayK/beat-bridge/backend/routes"
-	"github.com/gofiber/fiber/v2"
+    "beat-bridge/config"
+    "beat-bridge/internal/routes"
+
+    "github.com/gofiber/fiber/v2"
+    "github.com/rs/zerolog"
+    "github.com/rs/zerolog/log"
 )
 
 func main() {
+    // Set up zerolog
+    zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+    log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr,  TimeFormat: time.RFC3339})
+
     // Load config
     cfg := config.LoadConfig()
 
@@ -16,11 +24,14 @@ func main() {
     app := fiber.New()
 
     // Set up routes
-    routes.SetupRoutes(app)
+    routes.AllSourcesRoutes(app)
+    routes.SpotifyRoutes(app)
+    routes.YouTubeRoutes(app)
+    routes.EncodeRoutes(app)
 
     // Start the server
-    log.Printf("Server running on %s", cfg.ServerAddress)
+    log.Info().Msgf("Server running on %s", cfg.ServerAddress)
     if err := app.Listen(cfg.ServerAddress); err != nil {
-        log.Fatalf("Failed to start server: %v", err)
+        log.Fatal().Err(err).Msg("Failed to start server")
     }
 }

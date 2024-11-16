@@ -1,7 +1,7 @@
 import { Playlist } from "@/types/props";
 import PlaylistDownloadPage from "./components/playlists";
 import TabsLayout from "@/components/tab-layout";
-import pic from "/Users/nak/Downloads/01.webp";
+import pic from "@/public/01.webp";
 
 const playlists: Playlist[] = [
   { id: 1, name: "React Rendezvous", songs: 25, thumbnail: pic },

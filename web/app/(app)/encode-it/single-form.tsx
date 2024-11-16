@@ -19,6 +19,9 @@ import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+
+const currentYear = new Date().getFullYear();
+
 // Define Zod Schema
 const singleFormSchema = z.object({
   name: z.string().min(1, { message: "Song name is required." }),
@@ -26,7 +29,10 @@ const singleFormSchema = z.object({
   image: z.any().optional(),
   artist: z.string().optional(),
   album: z.string().optional(),
-  yearOfRelease: z.string().optional(),
+  yearOfRelease: z.number().min(1900, { message: "Please enter a valid date" }).max(currentYear, { message: "Please enter a valid date" }).optional(),
+  albumArtist: z.string().optional(),
+  trackNumber: z.number().optional(),
+  trackTotal: z.number().optional(),
 });
 
 type SingleFormValues = z.infer<typeof singleFormSchema>;
@@ -228,7 +234,7 @@ export default function SingleForm() {
 
 
 
-        {/* Artist, Album, Year Inputs */}
+        {/* Artist, Album, Album Artist */}
         <div className="grid gap-4 md:grid-cols-3">
           <FormField
             control={form.control}
@@ -258,10 +264,53 @@ export default function SingleForm() {
           />
           <FormField
             control={form.control}
+            name="albumArtist"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Album Artist</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter the album artist name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Year Inputs, Track Number, Track Total */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <FormField
+            control={form.control}
             name="yearOfRelease"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Year of Release</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="YYYY" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="trackNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Track Number</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="Enter the track number" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="trackTotal"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Track Total</FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="YYYY" {...field} />
                 </FormControl>
