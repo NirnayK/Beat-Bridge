@@ -1,14 +1,21 @@
 package processors
 
 import (
-	"bytes"
 	"encoding/json"
-	"net/http"
+	"fmt"
 	"net/url"
+	"strings"
+
+	"github.com/valyala/fasthttp"
 )
 
-// CreateRequest creates an HTTP request with the specified method, URL, headers, body data, and query parameters.
-func CreateRequest(method, urlStr string, headers map[string]string, data interface{}, params map[string]string) (*http.Request, error) {
+// PerformRequest sends an HTTP request using fasthttp with the specified method, URL, headers, body, and query parameters.
+func PerformRequest(method, urlStr string, headers map[string]string, data interface{}, params map[string]string, v interface{}) (interface{}, error) {
+	req := fasthttp.AcquireRequest()
+	resp := fasthttp.AcquireResponse()
+	defer fasthttp.ReleaseRequest(req) // Release request after execution
+	defer fasthttp.ReleaseResponse(resp)
+
 	// Add query parameters to the URL
 	if len(params) > 0 {
 		parsedURL, err := url.Parse(urlStr)
@@ -23,45 +30,40 @@ func CreateRequest(method, urlStr string, headers map[string]string, data interf
 		urlStr = parsedURL.String()
 	}
 
+	req.SetRequestURI(urlStr)
+	req.Header.SetMethod(strings.ToUpper(method))
+
+	// Add headers
+	for key, value := range headers {
+		req.Header.Set(key, value)
+	}
+
 	// Prepare the request body
-	var body *bytes.Buffer
 	if data != nil {
 		jsonData, err := json.Marshal(data)
 		if err != nil {
 			return nil, err
 		}
-		body = bytes.NewBuffer(jsonData)
-	} else {
-		body = &bytes.Buffer{}
+		req.SetBody(jsonData)
+		req.Header.Set("Content-Type", "application/json")
 	}
 
-	// Create a new HTTP request
-	req, err := http.NewRequest(method, urlStr, body)
+	// Perform the HTTP request
+	client := &fasthttp.Client{}
+	err := client.Do(req, resp)
 	if err != nil {
 		return nil, err
 	}
 
-	// Set headers
-	for key, value := range headers {
-		req.Header.Set(key, value)
+	// Check for non-200 status codes
+	if resp.StatusCode() != fasthttp.StatusOK {
+		return nil, fmt.Errorf("request failed with status code %d: %s", resp.StatusCode(), resp.Body())
 	}
 
-	return req, nil
-}
+	// Unmarshal the response body into the provided struct
+	if err := json.Unmarshal(resp.Body(), v); err != nil {
+		return nil, err
+	}
 
-
-func DoRequest(req *http.Request, v interface{}) (interface{}, error) {
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        return nil, err
-    }
-    defer resp.Body.Close()
-
-    
-    if err := json.NewDecoder(resp.Body).Decode(v); err != nil {
-        return nil, err
-    }
-
-    return v, nil
+	return v, nil
 }

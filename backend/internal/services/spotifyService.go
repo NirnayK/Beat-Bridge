@@ -5,15 +5,16 @@ import (
 	"beat-bridge/internal/models"
 	"beat-bridge/internal/processors"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 
 	"github.com/rs/zerolog/log"
 )
 
 // GetAuthToken retrieves the Spotify authentication token
-func GetAuthToken(header_map map[string][] string) (interface{}, error) {
-    clientID := header_map["clientID"][0]
-    clientSecret := header_map["clientSecret"]
+func GetAuthToken(header_data *models.SpotfyRequestHeader) (interface{}, error) {
+    clientID := header_data.ClientID
+    clientSecret := header_data.ClientSecret
     authString := fmt.Sprintf("%s:%s", clientID, clientSecret)
     authBase64 := base64.StdEncoding.EncodeToString([]byte(authString))
     url := constants.SpotifyApiToken
@@ -23,27 +24,26 @@ func GetAuthToken(header_map map[string][] string) (interface{}, error) {
     }
     data := map[string]string{"grant_type": "client_credentials"}
 
-    request, err := processors.CreateRequest("POST", url, headers, data, nil)
+    response, err := processors.PerformRequest("POST", url, headers, data, nil)
     if err != nil {
         log.Error().Err(err).Msg("Failed to create request")
         return nil, err
     }
 
-    response, err := processors.DoRequest(request, &models.SpotifyAccessTokenResponse{})
-    if err != nil {
-        log.Error().Err(err).Msg("Failed to get auth token")
-        return nil, err
-    }
+    var tokenResponse models.SpotifyAccessTokenResponse
+    if err := json.Unmarshal(response.Body(), &tokenResponse); err != nil {
+		return nil, err
+	}
 
     log.Info().Msg("Successfully retrieved auth token")
-    return response, nil
+    return tokenResponse.AccessToken, nil
 }
 
 // GetSpotifyAuthHeader retrieves the Spotify authorization header
-func GetSpotifyAuthHeader(header_map map[string][]string) (map[string] string, error) {
-    token, err := GetAuthToken(header_map)
+func GetSpotifyAuthHeader(headers *models.SpotfyRequestHeader) (map[string] string, error) {
+    token, err := GetAuthToken(headers)
     if err != nil {
-        return "", err
+        return nil, err
     }
     header := make(map[string] string)
     header["Authorization"] = fmt.Sprintf("Bearer %s", token.(*models.SpotifyAccessTokenResponse).AccessToken)
@@ -51,15 +51,37 @@ func GetSpotifyAuthHeader(header_map map[string][]string) (map[string] string, e
 }
 
 // AllSpotifyPlaylists retrieves all Spotify playlists
-func AllSpotifyPlaylists(header_map map[string][] string) (interface{}, error) {
-    header, err := GetSpotifyAuthHeader(header_map)
+func AllSpotifyPlaylists(headers *models.SpotfyRequestHeader) (*models.SpotifyAllPlaylistsResponse, error) {
+    spotifyHeader, err := GetSpotifyAuthHeader(headers)
     if err != nil {
         return nil, err
     }
 
-    url := fmt.Sprintf(constants.SpotifyUserPlaylistListURL, header_map["userID"])
-    request, err := processors.CreateRequest("GET", url, header, nil, nil)
-    // Add your logic to fetch all Spotify playlists here
-    log.Info().Msg("Successfully retrieved Spotify auth header")
-    return nil, nil
+    url := fmt.Sprintf(constants.SpotifyUserPlaylistListURL, headers.UserID)
+
+    var allPlaylists []models.SimplifiedPlaylistObject
+    var playlistResponse models.SpotifyUserPlaylistResponse
+
+    for {
+        response, err := processors.PerformRequest("GET", url, spotifyHeader, nil, nil)
+        if err != nil {
+            log.Error().Err(err).Msg("Failed to create request")
+            return nil, err
+        }
+
+        if err := json.Unmarshal(response.Body(), &playlistResponse); err != nil {
+            return nil, err
+        }
+
+        allPlaylists = append(allPlaylists, playlistResponse.Items...)
+
+        if playlistResponse.Next == nil || *playlistResponse.Next == "" {
+            break
+        }
+
+        url = *playlistResponse.Next
+    }
+
+    log.Info().Msg("Successfully retrieved all Spotify playlists")
+    return &models.SpotifyAllPlaylistsResponse{Playlists: allPlaylists}, nil
 }

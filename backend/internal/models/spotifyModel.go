@@ -37,12 +37,8 @@ type SpotifyAccessTokenRequest struct {
 
 // Response structs
 type SpotifyUserPlaylistResponse struct {
-    Href     string                   `json:"href" validate:"required"`
-    Limit    int                      `json:"limit" validate:"required"`
+    Href     string                   `json:"href"`
     Next     *string                  `json:"next"`
-    Offset   int                      `json:"offset" validate:"required"`
-    Previous *string                  `json:"previous"`
-    Total    int                      `json:"total" validate:"required"`
     Items    []SimplifiedPlaylistObject `json:"items" validate:"required"`
 }
 
@@ -95,19 +91,14 @@ type PlaylistTrackObject struct {
 
 // Common structs
 type SimplifiedPlaylistObject struct {
-    Collaborative bool              `json:"collaborative"`
     Description   *string           `json:"description"`
     ExternalURLs  ExternalURLs      `json:"external_urls"`
     Href          string            `json:"href"`
     ID            string            `json:"id"`
     Images        []ImageObject     `json:"images"`
     Name          string            `json:"name"`
-    Owner         UserObject        `json:"owner"`
     Public        *bool             `json:"public"`
-    SnapshotID    string            `json:"snapshot_id"`
     Tracks        PlaylistTracks    `json:"tracks"`
-    Type          string            `json:"type"`
-    URI           string            `json:"uri"`
 }
 
 type SimplifiedTrackObject struct {
@@ -190,4 +181,3 @@ type ErrorResponse struct {
     Status  int    `json:"status" validate:"required"`
     Message string `json:"message" validate:"required"`
 }
-

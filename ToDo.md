@@ -2,3 +2,6 @@
 
 # Use Crypto JS to encrypt while storing have the secret stored in backend
 
+# Use Gorm
+
+# Fix Fast Http Function
