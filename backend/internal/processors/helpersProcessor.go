@@ -10,7 +10,7 @@ import (
 )
 
 // PerformRequest sends an HTTP request using fasthttp with the specified method, URL, headers, body, and query parameters.
-func PerformRequest(method, urlStr string, headers map[string]string, data interface{}, params map[string]string, v interface{}) (interface{}, error) {
+func PerformRequest(method, urlStr string, headers map[string]string, data interface{}, params map[string]string, v interface{}) error {
 	req := fasthttp.AcquireRequest()
 	resp := fasthttp.AcquireResponse()
 	defer fasthttp.ReleaseRequest(req) // Release request after execution
@@ -20,7 +20,7 @@ func PerformRequest(method, urlStr string, headers map[string]string, data inter
 	if len(params) > 0 {
 		parsedURL, err := url.Parse(urlStr)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		query := parsedURL.Query()
 		for key, value := range params {
@@ -42,7 +42,7 @@ func PerformRequest(method, urlStr string, headers map[string]string, data inter
 	if data != nil {
 		jsonData, err := json.Marshal(data)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		req.SetBody(jsonData)
 		req.Header.Set("Content-Type", "application/json")
@@ -52,18 +52,18 @@ func PerformRequest(method, urlStr string, headers map[string]string, data inter
 	client := &fasthttp.Client{}
 	err := client.Do(req, resp)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// Check for non-200 status codes
 	if resp.StatusCode() != fasthttp.StatusOK {
-		return nil, fmt.Errorf("request failed with status code %d: %s", resp.StatusCode(), resp.Body())
+		return fmt.Errorf("request failed with status code %d: %s", resp.StatusCode(), resp.Body())
 	}
 
 	// Unmarshal the response body into the provided struct
 	if err := json.Unmarshal(resp.Body(), v); err != nil {
-		return nil, err
+		return err
 	}
 
-	return v, nil
+	return nil
 }
