@@ -13,7 +13,7 @@ import (
 func PerformRequest(method, urlStr string, headers map[string]string, data interface{}, params map[string]string, v interface{}) error {
 	req := fasthttp.AcquireRequest()
 	resp := fasthttp.AcquireResponse()
-	defer fasthttp.ReleaseRequest(req) // Release request after execution
+	defer fasthttp.ReleaseRequest(req)
 	defer fasthttp.ReleaseResponse(resp)
 
 	// Add query parameters to the URL
@@ -40,12 +40,19 @@ func PerformRequest(method, urlStr string, headers map[string]string, data inter
 
 	// Prepare the request body
 	if data != nil {
-		jsonData, err := json.Marshal(data)
-		if err != nil {
-			return err
+		if headers["Content-Type"] == "application/x-www-form-urlencoded" {
+			formData := url.Values{}
+			for key, value := range data.(map[string]string) {
+				formData.Set(key, value)
+			}
+			req.SetBody([]byte(formData.Encode()))
+		} else {
+			jsonData, err := json.Marshal(data)
+			if err != nil {
+				return err
+			}
+			req.SetBody(jsonData)
 		}
-		req.SetBody(jsonData)
-		req.Header.Set("Content-Type", "application/json")
 	}
 
 	// Perform the HTTP request
@@ -57,12 +64,14 @@ func PerformRequest(method, urlStr string, headers map[string]string, data inter
 
 	// Check for non-200 status codes
 	if resp.StatusCode() != fasthttp.StatusOK {
-		return fmt.Errorf("request failed with status code %d: %s", resp.StatusCode(), resp.Body())
+		return fmt.Errorf("request failed with status code %d: %s", resp.StatusCode(), string(resp.Body()))
 	}
 
 	// Unmarshal the response body into the provided struct
-	if err := json.Unmarshal(resp.Body(), v); err != nil {
-		return err
+	if v != nil {
+		if err := json.Unmarshal(resp.Body(), v); err != nil {
+			return err
+		}
 	}
 
 	return nil

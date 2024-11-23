@@ -22,3 +22,18 @@ func GetSpotifyPlaylistList(c *fiber.Ctx) error {
     }
     return c.JSON(data)
 }
+
+
+func GetSpotifyPlaylistTracks(c *fiber.Ctx) error {
+    headers := new(models.SpotfyRequestHeader)
+
+    if err := c.ReqHeaderParser(headers); err != nil {
+        return err
+    }
+
+    data, err := services.GetPlaylistTracks(headers, c.Params("playlistID"))
+    if err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+    }
+    return c.JSON(data)
+}

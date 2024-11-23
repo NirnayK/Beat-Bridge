@@ -17,10 +17,12 @@ func GetAuthToken(headerData *models.SpotfyRequestHeader, tokenResponse *models.
 	authString := fmt.Sprintf("%s:%s", clientID, clientSecret)
 	authBase64 := base64.StdEncoding.EncodeToString([]byte(authString))
 	url := constants.SpotifyApiToken
+
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Basic %s", authBase64),
 		"Content-Type":  "application/x-www-form-urlencoded",
 	}
+
 	data := map[string]string{"grant_type": "client_credentials"}
 
 	if err := processors.PerformRequest("POST", url, headers, data, nil, tokenResponse); err != nil {
@@ -41,6 +43,7 @@ func GetSpotifyAuthHeader(headers *models.SpotfyRequestHeader) (map[string]strin
 
 	header := map[string]string{
 		"Authorization": fmt.Sprintf("Bearer %s", tokenResponse.AccessToken),
+		"Content-Type":  "application/json",
 	}
 	return header, nil
 }
@@ -74,4 +77,35 @@ func AllSpotifyPlaylists(headers *models.SpotfyRequestHeader) (*models.SpotifyAl
 
 	log.Info().Msg("Successfully retrieved all Spotify playlists")
 	return &models.SpotifyAllPlaylistsResponse{Playlists: allPlaylists}, nil
+}
+
+// GetPlaylistTracks retrieves all tracks from a Spotify playlist
+func GetPlaylistTracks(headers *models.SpotfyRequestHeader, playlistID string) (*[]models.PlaylistTrackObject, error) {
+	spotifyHeader, err := GetSpotifyAuthHeader(headers)
+	if err != nil {
+		return nil, err
+	}
+
+	url := fmt.Sprintf(constants.SpotifyPlaylistTracksURL, playlistID)
+
+	var allTracks []models.PlaylistTrackObject
+	var trackResponse models.SpotifyPlaylistTracksResponse
+
+	for {
+		if err := processors.PerformRequest("GET", url, spotifyHeader, nil, nil, &trackResponse); err != nil {
+			log.Error().Err(err).Msg("Failed to create request")
+			return nil, err
+		}
+
+		allTracks = append(allTracks, trackResponse.Items...)
+
+		if trackResponse.Next == nil || *trackResponse.Next == "" {
+			break
+		}
+
+		url = *trackResponse.Next
+	}
+
+	log.Info().Msg("Successfully retrieved all tracks from Spotify playlist")
+	return &allTracks, nil
 }

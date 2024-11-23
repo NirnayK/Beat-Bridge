@@ -1,15 +1,15 @@
 package main
 
 import (
-    "os"
-    "time"
+	"os"
+	"time"
 
-    "beat-bridge/config"
-    "beat-bridge/internal/routes"
+	"beat-bridge/config"
+	"beat-bridge/internal/routes"
 
-    "github.com/gofiber/fiber/v2"
-    "github.com/rs/zerolog"
-    "github.com/rs/zerolog/log"
+	"github.com/gofiber/fiber/v2"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
@@ -24,10 +24,10 @@ func main() {
     app := fiber.New()
 
     // Set up routes
-    routes.AllSourcesRoutes(app)
+    // routes.AllSourcesRoutes(app)
     routes.SpotifyRoutes(app)
-    routes.YouTubeRoutes(app)
-    routes.EncodeRoutes(app)
+    // routes.YouTubeRoutes(app)
+    // routes.EncodeRoutes(app)
 
     // Start the server
     log.Info().Msgf("Server running on %s", cfg.ServerAddress)
