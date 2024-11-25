@@ -4,4 +4,7 @@
 
 # Use Gorm
 
-# Fix Fast Http Function
+# Look into zip and sockets
+
+# Add localhost routes for the jio saavn thingy
+

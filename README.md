@@ -4,8 +4,8 @@ Beat Bridge is a web application that integrates with various music streaming se
 
 ## Features
 
-- Fetch and display playlists from Spotify, Saavn, and YouTube.
-- Fetch and display songs from Spotify, Saavn, and YouTube.
+- Fetch and display playlists from Spotify and YouTube.
+- Fetch and display songs from Spotify and YouTube.
 - Unified interface for managing music across multiple platforms.
 
 ## Installation
@@ -25,7 +25,6 @@ Beat Bridge is a web application that integrates with various music streaming se
     ```sh
     export SPOTIFY_CLIENT_ID=your_spotify_client_id
     export SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
-    export SAAVN_API_KEY=your_saavn_api_key
     export YOUTUBE_API_KEY=your_youtube_api_key
     ```
 
@@ -46,13 +45,6 @@ The application uses a configuration file to manage settings. The configuration 
 - `GET /spotify/all_playlist` - Fetch all Spotify playlists.
 - `GET /spotify/song/:id` - Fetch a Spotify song by ID.
 - `GET /spotify/all_songs` - Fetch all Spotify songs.
-
-### Saavn Routes
-
-- `GET /saavn/playlist/:id` - Fetch a Saavn playlist by ID.
-- `GET /saavn/all_playlist` - Fetch all Saavn playlists.
-- `GET /saavn/song/:id` - Fetch a Saavn song by ID.
-- `GET /saavn/all_songs` - Fetch all Saavn songs.
 
 ### YouTube Routes
 

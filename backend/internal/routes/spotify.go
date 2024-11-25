@@ -8,6 +8,7 @@ import (
 
 func SpotifyRoutes(app *fiber.App) {
     // GET routes
-    app.Get("api/v1/spotify/all_playlist", controllers.GetSpotifyPlaylistList)
-
+    app.Get("api/spotify/playlists", controllers.FetchSpotifyPlaylists)
+	app.Get("api/spotify/playlist/:playlistID/tracks", controllers.FetchSpotifyPlaylistTracks)
+	app.Get("api/spotify/playlist/:playlistID/download", controllers.FetchSpotifyPlaylistTrack)
 }

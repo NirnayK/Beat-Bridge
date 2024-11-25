@@ -10,8 +10,9 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// GetAuthToken retrieves the Spotify authentication token
-func GetAuthToken(headerData *models.SpotfyRequestHeader, tokenResponse *models.SpotifyAccessTokenResponse) error {
+// FetchSpotifyToken retrieves the Spotify authentication token
+func FetchSpotifyToken(headerData *models.SpotfyRequestHeader, tokenResponse *models.SpotifyAccessTokenResponse) error {
+	headerData.Initialize()
 	clientID := headerData.ClientID
 	clientSecret := headerData.ClientSecret
 	authString := fmt.Sprintf("%s:%s", clientID, clientSecret)
@@ -34,10 +35,10 @@ func GetAuthToken(headerData *models.SpotfyRequestHeader, tokenResponse *models.
 	return nil
 }
 
-// GetSpotifyAuthHeader retrieves the Spotify authorization header
-func GetSpotifyAuthHeader(headers *models.SpotfyRequestHeader) (map[string]string, error) {
+// SpotifyAuthHeader retrieves the Spotify authorization header
+func SpotifyAuthHeader(headers *models.SpotfyRequestHeader) (map[string]string, error) {
 	var tokenResponse models.SpotifyAccessTokenResponse
-	if err := GetAuthToken(headers, &tokenResponse); err != nil {
+	if err := FetchSpotifyToken(headers, &tokenResponse); err != nil {
 		return nil, err
 	}
 
@@ -48,9 +49,9 @@ func GetSpotifyAuthHeader(headers *models.SpotfyRequestHeader) (map[string]strin
 	return header, nil
 }
 
-// AllSpotifyPlaylists retrieves all Spotify playlists
-func AllSpotifyPlaylists(headers *models.SpotfyRequestHeader) (*models.SpotifyAllPlaylistsResponse, error) {
-	spotifyHeader, err := GetSpotifyAuthHeader(headers)
+// GetAllPlaylists retrieves all Spotify playlists
+func GetAllPlaylists(headers *models.SpotfyRequestHeader) (*models.SpotifyAllPlaylistsResponse, error) {
+	spotifyHeader, err := SpotifyAuthHeader(headers)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +82,7 @@ func AllSpotifyPlaylists(headers *models.SpotfyRequestHeader) (*models.SpotifyAl
 
 // GetPlaylistTracks retrieves all tracks from a Spotify playlist
 func GetPlaylistTracks(headers *models.SpotfyRequestHeader, playlistID string) (*[]models.PlaylistTrackObject, error) {
-	spotifyHeader, err := GetSpotifyAuthHeader(headers)
+	spotifyHeader, err := SpotifyAuthHeader(headers)
 	if err != nil {
 		return nil, err
 	}
@@ -108,4 +109,55 @@ func GetPlaylistTracks(headers *models.SpotfyRequestHeader, playlistID string) (
 
 	log.Info().Msg("Successfully retrieved all tracks from Spotify playlist")
 	return &allTracks, nil
+}
+
+func DownloadPlaylist(headers *models.SpotfyRequestHeader, playlistID string) (<-chan string, error) {
+    allTracks, err := GetPlaylistTracks(headers, playlistID)
+    if err != nil {
+        return nil, err
+    }
+
+    // Create a channel to stream data
+    dataChannel := make(chan string)
+
+    // Create a worker pool with a maximum of 10 concurrent workers
+    workerCount := len(*allTracks)
+    jobs := make(chan models.PlaylistTrackObject, len(*allTracks))
+    done := make(chan bool)
+
+    // Worker function that processes the songs
+    worker := func() {
+        for track := range jobs {
+            trackData, err := processors.download_songs(track)
+            if err != nil {
+                log.Error().Err(err).Msgf("Failed to process track: %s", track.Track.Name)
+                continue
+            }
+            dataChannel <- trackData
+        }
+        done <- true
+    }
+
+    // Launch workers
+    for i := 0; i < workerCount; i++ {
+        go worker()
+    }
+
+    // Distribute the tracks among workers
+    go func() {
+        for _, track := range *allTracks {
+            jobs <- track
+        }
+        close(jobs)
+    }()
+
+    // Close the dataChannel once all workers are done
+    go func() {
+        for i := 0; i < workerCount; i++ {
+            <-done
+        }
+        close(dataChannel)
+    }()
+
+    return dataChannel, nil
 }

@@ -1,6 +1,7 @@
 package processors
 
 import (
+	"beat-bridge/internal/models"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -75,4 +76,21 @@ func PerformRequest(method, urlStr string, headers map[string]string, data inter
 	}
 
 	return nil
+}
+
+func download_songs(track models.PlaylistTrackObject) (string, error) {
+	// Search for the song on JioSaavn
+	
+	// Save the image on Minio
+
+	// Download the song from JioSaavn
+
+	// Encode the song details 
+
+	// Save the song details in the database
+
+	// Save the encoded song on Minio
+
+	// Return the minio URL
+
 }
