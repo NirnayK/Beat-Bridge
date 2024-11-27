@@ -1,11 +1,13 @@
 package processors
 
 import (
+	"beat-bridge/internal/constants"
 	"beat-bridge/internal/models"
 	"encoding/json"
 	"fmt"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/google/uuid"
@@ -91,7 +93,7 @@ func PerformRequest(method, urlStr string, headers map[string]string, data inter
 	return nil
 }
 
-func download_songs(track models.PlaylistTrackObject) (string, error) {
+func DownloadSongs(track models.PlaylistTrackObject) (string, error) {
 	newUUID := uuid.New().String()
 
 	// Create a temporary directory for processing
@@ -105,75 +107,116 @@ func download_songs(track models.PlaylistTrackObject) (string, error) {
 		}
 	}()
 
-	// Channels for capturing results
-	searchResultChan := make(chan interface{}, 1)
-	searchErrorChan := make(chan error, 1) // Channel for search errors
-	imageDownloadErrChan := make(chan error, 1)
+	// Channels to capture errors and results
+	imageUploadErrChan := make(chan error, 1)
+	songUploadErrChan := make(chan error, 1)
+	dbSaveErrChan := make(chan error, 1)
+	imageURLChan := make(chan string, 1)
+	songURLChan := make(chan string, 1)
 
-	// Start the search process in a goroutine
+	// Start the image download process in a goroutine
 	go func() {
-		defer close(searchResultChan)
-		defer close(searchErrorChan)
-		searchResult, err := search(&track) // capture error if any
-		if err != nil {
-			searchErrorChan <- fmt.Errorf("search failed for track: %s, error: %w", track.Track.Name, err)
+		defer close(imageURLChan)
+		defer close(imageUploadErrChan)
+
+		imagePath := filepath.Join(tempDir, fmt.Sprintf(constants.ImagePath, track.Track.Name))
+		if err := DownloadImage(&track, tempDir); err != nil {
+			imageUploadErrChan <- fmt.Errorf("failed to download image for track: %s, error: %w", track.Track.Name, err)
 			return
 		}
-		searchResultChan <- searchResult
-	}()
 
-	// Start the image download process
-	go func() {
-		defer close(imageDownloadErrChan)
-		imageDownloadErr := download_image(&track, tempDir)
-		imageDownloadErrChan <- imageDownloadErr
-	}()
-
-	// Wait for the search result or error
-	select {
-	case searchResult := <-searchResultChan:
-		if searchResult == nil {
-			return "", fmt.Errorf("search returned nil result for track: %s", track.Track.Name)
+		imageMinioURL, err := MinioUpload(imagePath, constants.MinioImageBucket)
+		if err != nil {
+			imageUploadErrChan <- fmt.Errorf("failed to upload image to MinIO: %w", err)
+			return
 		}
-	case err := <-searchErrorChan:
-		return "", err // Propagate search error
+
+		imageURLChan <- imageMinioURL
+		imageUploadErrChan <- nil
+	}()
+
+	// Start the song encoding and upload process in a goroutine
+	go func() {
+		defer close(songUploadErrChan)
+		defer close(songURLChan)
+
+		songPath := filepath.Join(tempDir, fmt.Sprintf(constants.RawSongPath, track.Track.Name))
+		encodedSongPath := filepath.Join(tempDir, fmt.Sprintf(constants.EncodedSongPath, track.Track.Name))
+
+		// Search for the song
+		songData, err := Search(&track)
+		if err != nil {
+			songUploadErrChan <- fmt.Errorf("failed to search for song: %w", err)
+			return
+		}
+
+		// Download the song and encode it
+		if err := DownloadSong(songData, songPath); err != nil {
+			songUploadErrChan <- fmt.Errorf("failed to download song for track: %s, error: %w", track.Track.Name, err)
+			return
+		}
+
+		if err := EncodeSong(songPath, encodedSongPath); err != nil {
+			songUploadErrChan <- fmt.Errorf("failed to encode song for track: %s, error: %w", track.Track.Name, err)
+			return
+		}
+
+		// Upload the encoded song to MinIO
+		songMinioURL, err := MinioUpload(encodedSongPath, fmt.Sprintf(constants.MinioSongBucket, track.Track.Album.Name))
+		if err != nil {
+			songUploadErrChan <- fmt.Errorf("failed to upload song to MinIO: %w", err)
+			return
+		}
+
+		// Send the song URL to the channel
+		songURLChan <- songMinioURL
+		songUploadErrChan <- nil
+	}()
+
+	// Start saving the song details in the database in a goroutine
+	go func() {
+		defer close(dbSaveErrChan)
+		// Wait until we have the MinIO URLs (after uploads)
+		imageUploadErr := <-imageUploadErrChan
+		if imageUploadErr != nil {
+			dbSaveErrChan <- imageUploadErr
+			return
+		}
+
+		songUploadErr := <-songUploadErrChan
+		if songUploadErr != nil {
+			dbSaveErrChan <- songUploadErr
+			return
+		}
+
+		// // Now save the song details to the database
+		// if err := save_to_database(track, <-imageURLChan, <-songURLChan); err != nil {
+		// 	dbSaveErrChan <- fmt.Errorf("failed to save song details to database: %w", err)
+		// 	return
+		// }
+
+		// No error, send nil to the channel
+		dbSaveErrChan <- nil
+	}()
+
+	select {
+	case err = <-imageUploadErrChan:
+		if err != nil {
+			return "", err
+		}
+	case err = <-songUploadErrChan:
+		if err != nil {
+			return "", err
+		}
+	case err = <-dbSaveErrChan:
+		if err != nil {
+			return "", err
+		}
 	}
 
-	// Wait for image download result
-	imageDownloadErr := <-imageDownloadErrChan
-	if imageDownloadErr != nil {
-		return "", fmt.Errorf("failed to download image for track: %s, error: %w", track.Track.Name, imageDownloadErr)
-	}
+	return <-songURLChan, nil 
+}
 
-	// Process the search result to download the song
-	songPath := filepath.Join(tempDir, fmt.Sprintf("%s.mp3", track.Track.Name))
-	if err := download_song(searchResult, songPath); err != nil {
-		return "", fmt.Errorf("failed to download song for track: %s, error: %w", track.Track.Name, err)
-	}
-
-	// Encode the song details
-	encodedSongPath := filepath.Join(tempDir, fmt.Sprintf("%s_encoded.mp3", track.Track.Name))
-	if err := encode_song(songPath, encodedSongPath); err != nil {
-		return "", fmt.Errorf("failed to encode song for track: %s, error: %w", track.Track.Name, err)
-	}
-
-	// Upload the image and song to MinIO
-	imagePath := filepath.Join(tempDir, fmt.Sprintf("%s.jpg", track.Track.Name))
-	imageMinioURL, err := upload_to_minio(imagePath, "images/")
-	if err != nil {
-		return "", fmt.Errorf("failed to upload image to MinIO: %w", err)
-	}
-
-	songMinioURL, err := upload_to_minio(encodedSongPath, "songs/")
-	if err != nil {
-		return "", fmt.Errorf("failed to upload song to MinIO: %w", err)
-	}
-
-	// Save the song details in the database
-	if err := save_to_database(track, songMinioURL, imageMinioURL); err != nil {
-		return "", fmt.Errorf("failed to save song details to database: %w", err)
-	}
-
-	// Return the MinIO URL for the uploaded song
-	return songMinioURL, nil
+func MinioUpload(filePath, bucket string) (string, error) {
+	
 }

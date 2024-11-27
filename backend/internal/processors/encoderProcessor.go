@@ -1,11 +1,10 @@
 package processors
 
 import (
-    "log"
+	"log"
 )
 
-func EncodeAudio(inputFile, format string) error {
-    log.Printf("Encoding %s to format %s", inputFile, format)
-    // Logic for encoding audio file
+func EncodeSong(songPath string, encodedSongPath string) error {
+    log.Printf("Encoding song: %s\n", songPath)
     return nil
 }

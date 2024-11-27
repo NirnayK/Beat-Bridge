@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-func download_image(track *models.PlaylistTrackObject, folder string) error {
+func DownloadImage(track *models.PlaylistTrackObject, folder string) error {
 	images := track.Track.Album.Images
 	if len(images) == 0 {
 		return fmt.Errorf("no images found for track %s", track.Track.Name)
