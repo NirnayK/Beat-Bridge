@@ -10,29 +10,36 @@ import (
 )
 
 
-func search(track *models.PlaylistTrackObject) (*models.SearchResponse, error) {
+func search(track *models.PlaylistTrackObject) (*models.SaavnSong, error) {
     // search by name
-    // search artist and then retrieve by artist
     // search album and then retrieve by album
+    // search artist and then retrieve by artist
 }
 
-func searchBySongName(track *models.PlaylistTrackObject) (*models.SearchResponse, error) {
+func searchBySongName(track *models.PlaylistTrackObject) (*models.SaavnSongSearchResponse, error) {
     // pass
 }
 
-func searchByArtist(track *models.PlaylistTrackObject) (*models.SearchResponse, error) {
+func searchByArtistName(track *models.PlaylistTrackObject) (*models.SaavnArtistSearchResponse, error) {
 
 }
 
-func searchByAlbum(track *models.PlaylistTrackObject) (*models.SearchResponse, error) {
+func searchByAlbumName(track *models.PlaylistTrackObject) (*models.SaavnAlbumSearchResponse, error) {
 
 }
 
-func findBestMatch(searchResults *models.SearchResponse) (*models.SearchResult, error) {
+func searchBySongID(track *models.PlaylistTrackObject) (*models.SaavnSongSearchResponse, error) {
     // pass
 }
 
-func downloadSong(song *models.SearchResult) error {
+func searchByAlbumID(track *models.PlaylistTrackObject) (*models.SaavnAlbumSearchResponse, error) {
+
+}
+
+func findBestMatch(searchResults *[]models.SaavnSong, track *models.PlaylistTrackObject) (*models.SaavnSong, error) {
     // pass
 }
 
+func downloadSong(song *models.SaavnSong) error {
+    // pass
+}

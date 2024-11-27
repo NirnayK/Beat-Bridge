@@ -42,7 +42,7 @@ type SimplifiedPlaylistObject struct {
 }
 
 type SimplifiedTrackObject struct {
-    ALbum           AlbumObject              `json:"album"`
+    Album           AlbumObject              `json:"album"`
     Artists         []SimplifiedArtistObject `json:"artists"`
     DiscNumber      int                      `json:"disc_number"`
     DurationMs      int                      `json:"duration_ms"`
