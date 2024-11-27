@@ -1,16 +1,21 @@
 package processors
 
 import (
+	"beat-bridge/config"
 	"beat-bridge/internal/constants"
 	"beat-bridge/internal/models"
+	"context"
 	"encoding/json"
 	"fmt"
+	"log"
+	"mime"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/minio/minio-go/v7"
 	"github.com/valyala/fasthttp"
 )
 
@@ -217,6 +222,35 @@ func DownloadSongs(track models.PlaylistTrackObject) (string, error) {
 	return <-songURLChan, nil 
 }
 
-func MinioUpload(filePath, bucket string) (string, error) {
-	
+func getContentType(filePath string) string {
+	// Get the file extension
+	ext := filepath.Ext(filePath)
+
+	// Look up the MIME type based on the extension
+	contentType := mime.TypeByExtension(ext)
+
+	// Fallback to "application/octet-stream" if the type can't be determined
+	if contentType == "" {
+		contentType = "application/octet-stream"
+	}
+
+	return contentType
+}
+
+func MinioUpload(localFilePath, bucketName, destinationPath string) (string, error) {
+	// Upload the file
+	contentType := getContentType(localFilePath) // Adjust content type if necessary
+	uploadInfo, err := config.MinioClient.FPutObject(context.Background(), bucketName, destinationPath, localFilePath, minio.PutObjectOptions{
+		ContentType: contentType,
+	})
+	if err != nil {
+		return "", fmt.Errorf("failed to upload file to MinIO: %w", err)
+	}
+
+	log.Printf("Successfully uploaded %s to bucket %s with size %d\n", destinationPath, bucketName, uploadInfo.Size)
+
+	// Construct the URL of the uploaded file
+	fileURL := fmt.Sprintf("https://%s/%s/%s", os.Getenv("MINIO_ENDPOINT"), bucketName, destinationPath)
+
+	return fileURL, nil
 }
